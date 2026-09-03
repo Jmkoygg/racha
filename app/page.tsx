@@ -2,8 +2,8 @@ import Link from "next/link";
 import { getOrganizer } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { formatBRL } from "@/lib/pix";
-import { Card, Navbar } from "@/components/ui";
-import OnboardForm from "@/components/OnboardForm";
+import { Card, Navbar, ChainBadge } from "@/components/ui";
+import LandingPage from "@/components/LandingPage";
 
 export const dynamic = "force-dynamic";
 
@@ -11,26 +11,7 @@ export default async function Home() {
   const organizer = await getOrganizer();
 
   if (!organizer) {
-    return (
-      <main className="rise flex flex-col gap-6">
-        <Navbar />
-        <div>
-          <span className="inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-500 mb-2 border border-emerald-500/20">
-            🇧🇷 Feito para universitários
-          </span>
-          <h1 className="text-3xl font-extrabold tracking-tight text-balance leading-tight">
-            Racha a conta e vê quem pagou no PIX.
-          </h1>
-          <p className="mt-2.5 text-ink-soft text-base leading-relaxed">
-            Cria o racha, manda <strong>um link no grupo do WhatsApp</strong> e cada um paga pelo banco deles.
-            Histórico imutável gravado na Solana.
-          </p>
-        </div>
-        <Card className="border-line/80 shadow-md">
-          <OnboardForm />
-        </Card>
-      </main>
-    );
+    return <LandingPage />;
   }
 
   const charges = await prisma.charge.findMany({
@@ -40,7 +21,7 @@ export default async function Home() {
   });
 
   return (
-    <main className="rise flex flex-col gap-5">
+    <main className="rise flex flex-col gap-5 pb-8">
       <Navbar
         right={
           <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-sunk text-ink-soft">
@@ -49,14 +30,16 @@ export default async function Home() {
         }
       />
 
+      {/* Botão de Criação */}
       <Link
         href="/nova"
         className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 px-5 py-4 text-center font-bold text-white shadow-lg shadow-emerald-600/25 transition active:scale-[0.98] hover:shadow-emerald-600/35"
       >
         <span className="text-lg leading-none">+</span>
-        <span>Nova cobrança</span>
+        <span>Nova cobrança de racha</span>
       </Link>
 
+      {/* Seus Rachas */}
       {charges.length === 0 ? (
         <Card className="text-center text-ink-soft py-8">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-sunk text-2xl">
@@ -64,14 +47,14 @@ export default async function Home() {
           </div>
           <p className="font-bold text-ink">Nenhum racha ativo ainda</p>
           <p className="mt-1 text-sm text-ink-soft">
-            Exemplo: <em>&ldquo;Churrasco da república&rdquo;</em> — R$ 120,00 entre 6 pessoas.
+            Exemplo: <em>&ldquo;Churrasco da república&rdquo;</em> ou <em>&ldquo;Almoço na cantina&rdquo;</em>.
           </p>
         </Card>
       ) : (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between px-1">
             <span className="text-xs font-bold uppercase tracking-wider text-ink-faint">
-              Seus Rachas ({charges.length})
+              Seus Rachas Ativos ({charges.length})
             </span>
           </div>
 
@@ -123,6 +106,31 @@ export default async function Home() {
           </ul>
         </div>
       )}
+
+      {/* Banner de Apresentação do Modo Cofre (Hackathon & Futuro) */}
+      <div className="rounded-3xl border border-purple-500/20 bg-gradient-to-br from-purple-500/[0.07] to-indigo-500/[0.03] p-5 flex flex-col gap-2.5">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+            <span>🛡️</span>
+            <span>Modo Cofre • Squads Multisig</span>
+          </span>
+          <span className="text-[10px] font-semibold bg-purple-500/10 text-purple-500 px-2 py-0.5 rounded-full border border-purple-500/20">
+            Em breve
+          </span>
+        </div>
+
+        <h3 className="text-sm font-extrabold text-ink leading-snug">
+          Vai criar caixa de formatura, CA ou república?
+        </h3>
+        <p className="text-xs text-ink-soft leading-relaxed">
+          Proteja o dinheiro da turma contra o risco de ficar no CPF de uma pessoa só. 
+          Cofre digital com múltiplas assinaturas: ninguém mexe sozinho.
+        </p>
+
+        <div className="pt-1 flex items-center gap-2">
+          <ChainBadge label="Proteção on-chain na Solana" />
+        </div>
+      </div>
     </main>
   );
 }

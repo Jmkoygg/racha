@@ -26,8 +26,14 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Racha — Divide a conta no PIX",
-  description: "Racha uma conta, manda o link no grupo, veja quem pagou. Registro on-chain transparente.",
+  title: "Racha — Divide a conta no PIX sem estresse",
+  description: "Racha contas entre amigos no PIX sem cadastro e proteja o caixa da república com auditoria on-chain na Solana.",
+  openGraph: {
+    title: "Racha — Divide a conta no PIX",
+    description: "Crie cobranças em 15s, compartilhe no WhatsApp e veja quem pagou no PIX em tempo real.",
+    locale: "pt_BR",
+    type: "website",
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

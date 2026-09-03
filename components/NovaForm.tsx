@@ -247,9 +247,9 @@ export default function NovaForm({ pixKey }: { pixKey: string }) {
       <button
         type="submit"
         disabled={busy}
-        className="rounded-xl bg-brand px-4 py-3.5 font-bold text-white disabled:opacity-50"
+        className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 px-5 py-4 text-center font-bold text-white shadow-lg shadow-emerald-500/25 transition active:scale-[0.98] hover:brightness-105 disabled:opacity-50 cursor-pointer"
       >
-        {busy ? "Criando…" : "Criar e compartilhar"}
+        {busy ? "Criando na Solana…" : "Criar e compartilhar no WhatsApp"}
       </button>
     </form>
   );

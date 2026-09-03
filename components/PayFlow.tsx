@@ -177,6 +177,19 @@ export default function PayFlow({
 
   return (
     <div className="flex flex-col gap-4">
+      {splitMode === "custom" && pending.length > 1 && (
+        <div className="text-left px-1">
+          <button
+            type="button"
+            onClick={() => setPicked(null)}
+            className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer inline-flex items-center gap-1"
+          >
+            <span>←</span>
+            <span>Escolher outra parte</span>
+          </button>
+        </div>
+      )}
+
       <div className="rounded-3xl border border-line bg-surface p-6 shadow-sm">
         <span className="block text-center text-xs font-bold uppercase tracking-wider text-ink-faint">
           {slice.label ? slice.label : "Sua parte no racha"}
