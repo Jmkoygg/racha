@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { formatBRL } from "@/lib/pix";
 import { Card, Navbar, ChainBadge } from "@/components/ui";
 import LandingPage from "@/components/LandingPage";
+import LogoutButton from "@/components/LogoutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -24,9 +25,12 @@ export default async function Home() {
     <main className="rise flex flex-col gap-5 pb-8">
       <Navbar
         right={
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-sunk text-ink-soft">
-            {organizer.name || "Organizador"}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-sunk text-ink-soft">
+              {organizer.name || "Organizador"}
+            </span>
+            <LogoutButton />
+          </div>
         }
       />
 
