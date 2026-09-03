@@ -6,6 +6,7 @@ import { normalizePixKey } from "@/lib/pix";
 const schema = z.object({
   name: z.string().max(60).optional().default(""),
   pixKey: z.string().min(3).max(80),
+  pin: z.string().min(4).max(8).optional(),
 });
 
 export async function GET() {
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
   const organizer = await upsertOrganizer(
     parsed.data.name.trim(),
     normalizePixKey(parsed.data.pixKey),
+    parsed.data.pin,
   );
   return NextResponse.json({ organizer });
 }

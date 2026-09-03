@@ -17,6 +17,7 @@ model Organizer {
   id        String   @id @default(cuid())
   name      String?
   pixKey    String
+  pinHash   String?
   createdAt DateTime @default(now())
   charges   Charge[]
 }
