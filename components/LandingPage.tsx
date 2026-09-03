@@ -84,7 +84,7 @@ export default function LandingPage() {
             }`}
           >
             <span>🛡️</span>
-            <span>Modo Cofre</span>
+            <span>Modo Grupo (Cofre)</span>
           </button>
         </div>
 
@@ -128,39 +128,63 @@ export default function LandingPage() {
           </div>
         ) : (
           <div className="rise flex flex-col gap-3">
-            <div className="rounded-2xl border border-purple-500/20 bg-purple-500/[0.04] p-4 flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-wider">
-                <span>🛡️ Proteção Anti-Tigrinho</span>
+            {/* Destaque Caso Real / Notícia */}
+            <div className="rounded-2xl border border-purple-500/25 bg-gradient-to-br from-purple-500/10 via-purple-500/[0.04] to-transparent p-4.5 flex flex-col gap-2 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-wider">
+                  <span>🛡️</span>
+                  <span>Proteção Coletiva Anti-Tigrinho</span>
+                </span>
+                <span className="text-[10px] font-bold bg-purple-500/15 text-purple-600 dark:text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30">
+                  Em breve
+                </span>
               </div>
-              <h3 className="text-base font-extrabold text-ink">
-                O fim do dinheiro da turma sumindo na conta de uma pessoa
+              
+              <h3 className="text-base font-extrabold text-ink leading-snug">
+                Chega de ver o dinheiro da formatura ou da atlética sumindo na conta de uma pessoa só
               </h3>
+              
               <p className="text-xs text-ink-soft leading-relaxed">
-                Em bancos tradicionais, o caixa da república, da atlética ou da formatura fica no CPF de <strong>um único tesoureiro</strong>. 
-                Se essa pessoa tiver um surto, tomar golpe ou apostar no Tigrinho, a turma perde tudo.
+                Em bancos tradicionais, o caixa da turma obrigatoriamente fica no <strong>CPF de um único tesoureiro</strong>. 
+                Se essa pessoa tiver um surto, tomar golpe ou apostar no Tigrinho, a turma perde tudo. Abrir conta conjunta institucional exige abrir CNPJ e pagar meses de cartório.
               </p>
             </div>
 
+            {/* Pilar 1: Multisig Squads */}
             <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-sm font-black text-purple-600 dark:text-purple-400">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-base font-black text-purple-600 dark:text-purple-400">
                 🗝️
               </span>
               <div>
-                <h3 className="text-sm font-bold text-ink">Cofre Multi-Assinatura (Squads)</h3>
+                <h3 className="text-sm font-bold text-ink">Cofre Multi-Assinatura (Squads Protocol)</h3>
                 <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
-                  O dinheiro só pode ser movimentado se a maioria da diretoria assinar (ex: 2 de 3). Ninguém saca sozinho.
+                  O dinheiro do grupo fica sob regra inteligente: qualquer saque ou pagamento exige <strong>2 de 3 (ou 3 de 5) assinaturas</strong> da comissão. Ninguém mexe sozinho.
                 </p>
               </div>
             </div>
 
+            {/* Pilar 2: Transparência */}
             <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-sm font-black text-purple-600 dark:text-purple-400">
-                📊
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-base font-black text-purple-600 dark:text-purple-400">
+                👁️
               </span>
               <div>
-                <h3 className="text-sm font-bold text-ink">Transparência pública e perpétua</h3>
+                <h3 className="text-sm font-bold text-ink">Auditoria aberta para toda a turma</h3>
                 <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
-                  Todos os formandos ou moradores da república enxergam cada entrada e saída on-chain. Trocou a gestão? O histórico e os fundos continuam protegidos.
+                  Todos os formandos ou moradores da república conseguem ver cada entrada e saída on-chain 24 horas por dia. Trocou a gestão? O histórico e o dinheiro continuam protegidos.
+                </p>
+              </div>
+            </div>
+
+            {/* Pilar 3: Rendimento */}
+            <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-base font-black text-purple-600 dark:text-purple-400">
+                📈
+              </span>
+              <div>
+                <h3 className="text-sm font-bold text-ink">Rendimento sobre saldo parado (Yield)</h3>
+                <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
+                  O dinheiro da festa que vai acontecer no fim do ano rende automaticamente em protocolos descentralizados, sem desvalorizar pela inflação.
                 </p>
               </div>
             </div>
