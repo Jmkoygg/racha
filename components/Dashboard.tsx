@@ -57,15 +57,15 @@ export default function Dashboard({
 
   const perPersonLabel =
     charge.splitMode === "equal"
-      ? `Sua parte: *${brl(Math.round(charge.totalCents / charge.peopleCount))}*`
-      : "Escolha sua parte no link";
+      ? `${brl(Math.round(charge.totalCents / charge.peopleCount))} pra cada`
+      : "Valor de acordo com sua parte";
 
   async function manualConfirm(index: number) {
     setBusy(index);
     await fetch(`/api/charges/${charge.slug}/confirm`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ action: "confirm", sliceIndex: index }),
+      body: JSON.stringify({ index }),
     });
     await refresh();
     setBusy(null);
@@ -86,7 +86,7 @@ export default function Dashboard({
       ? `${window.location.origin}${shareUrl}`
       : shareUrl;
 
-  const remindMsg = `👀 *Opa, falta gente acertar o racha: ${charge.title}*\n\nBora fechar a conta pelo PIX aqui:\n👉 ${fullShareUrl}\n\n_Atualiza em tempo real pra todo mundo ver!_ 💸`;
+  const remindMsg = `Lembrete do racha de *${charge.title}*:\n\nQuem ainda não pagou, copia o PIX e anexa o comprovante por aqui:\n${fullShareUrl}`;
   const remindWa = `https://wa.me/?text=${encodeURIComponent(remindMsg)}`;
 
   return (

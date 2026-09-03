@@ -18,7 +18,9 @@ export default function ShareButtons({
       ? `${window.location.origin}${url}`
       : url;
 
-  const msg = `🍕 *Racha da galera — ${title}*\n${perPersonLabel}\n\n👉 *Bora acertar pelo PIX aqui:*\n${targetUrl}\n\n_Abre no navegador e paga direto no seu banco (sem baixar app e sem cadastro). Confirmação na hora!_ 🚀`;
+  const msg = perPersonLabel
+    ? `Racha de *${title}* — ${perPersonLabel}\n\nCopia o PIX e anexa o comprovante por aqui:\n${targetUrl}`
+    : `Racha de *${title}*\n\nCopia o PIX e anexa o comprovante por aqui:\n${targetUrl}`;
   const wa = `https://wa.me/?text=${encodeURIComponent(msg)}`;
 
   async function copy() {
