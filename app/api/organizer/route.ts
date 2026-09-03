@@ -15,15 +15,24 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const body = await req.json().catch(() => null);
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
+  try {
+    const body = await req.json().catch(() => null);
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      const issue = parsed.error.issues[0]?.message || "Dados inválidos.";
+      return NextResponse.json({ error: issue }, { status: 400 });
+    }
+    const organizer = await upsertOrganizer(
+      parsed.data.name.trim(),
+      normalizePixKey(parsed.data.pixKey),
+      parsed.data.pin,
+    );
+    return NextResponse.json({ organizer });
+  } catch (err: unknown) {
+    console.error("Erro ao salvar organizador:", err);
+    return NextResponse.json(
+      { error: "Erro ao conectar com o banco de dados. Tente novamente." },
+      { status: 500 },
+    );
   }
-  const organizer = await upsertOrganizer(
-    parsed.data.name.trim(),
-    normalizePixKey(parsed.data.pixKey),
-    parsed.data.pin,
-  );
-  return NextResponse.json({ organizer });
 }
