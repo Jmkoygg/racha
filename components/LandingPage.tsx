@@ -1,12 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { Navbar, Card, ChainBadge } from "./ui";
 import OnboardForm from "./OnboardForm";
 
 export default function LandingPage() {
-  const [activeTab, setActiveTab] = useState<"racha" | "cofre">("racha");
-
   return (
     <div className="rise flex flex-col gap-8 pb-8">
       <Navbar />
@@ -50,146 +47,128 @@ export default function LandingPage() {
         <OnboardForm />
       </Card>
 
-      {/* Seletor dos 2 Modos */}
-      <section className="flex flex-col gap-4">
-        <div className="text-center sm:text-left">
-          <span className="text-xs font-bold uppercase tracking-wider text-ink-faint">
-            Como funciona
-          </span>
-          <h2 className="text-xl font-black text-ink">
-            A solução completa para o seu grupo
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-sunk p-1.5 border border-line">
-          <button
-            type="button"
-            onClick={() => setActiveTab("racha")}
-            className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 px-3 text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "racha"
-                ? "bg-surface text-ink shadow-sm"
-                : "text-ink-soft hover:text-ink"
-            }`}
-          >
-            <span>🍕</span>
-            <span>Modo Racha</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("cofre")}
-            className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 px-3 text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "cofre"
-                ? "bg-surface text-ink shadow-sm"
-                : "text-ink-soft hover:text-ink"
-            }`}
-          >
-            <span>🛡️</span>
-            <span>Modo Grupo (Cofre)</span>
-          </button>
-        </div>
-
-        {activeTab === "racha" ? (
-          <div className="rise flex flex-col gap-3">
-            <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-sm font-black text-emerald-600 dark:text-emerald-400">
-                1
-              </span>
-              <div>
-                <h3 className="text-sm font-bold text-ink">Cria a cobrança em 15 segundos</h3>
-                <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
-                  Lança o valor total (ex: R$ 45 no almoço da cantina), divide igualmente ou personaliza o que cada um consumiu.
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-sm font-black text-emerald-600 dark:text-emerald-400">
-                2
-              </span>
-              <div>
-                <h3 className="text-sm font-bold text-ink">Manda 1 link no grupo do Zap</h3>
-                <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
-                  Seus amigos clicam e já veem o valor exato e o QR Code. Pagam pelo Nubank, Inter ou qualquer banco <strong>sem precisar baixar nenhum app</strong>.
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-sm font-black text-emerald-600 dark:text-emerald-400">
-                3
-              </span>
-              <div>
-                <h3 className="text-sm font-bold text-ink">Painel em tempo real + OCR</h3>
-                <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
-                  Quem pagou envia o print ou você confirma em 1 clique. O comprovante vira um recibo público e permanente na blockchain Solana.
-                </p>
-              </div>
-            </div>
+      {/* Seção 1: Modo Racha */}
+      <section className="flex flex-col gap-3.5">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+              Modo Racha • O Dia a Dia
+            </span>
           </div>
-        ) : (
-          <div className="rise flex flex-col gap-3">
-            {/* Destaque Caso Real / Notícia */}
-            <div className="rounded-2xl border border-purple-500/25 bg-gradient-to-br from-purple-500/10 via-purple-500/[0.04] to-transparent p-4.5 flex flex-col gap-2 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-wider">
-                  <span>🛡️</span>
-                  <span>Proteção Coletiva Anti-Tigrinho</span>
-                </span>
-                <span className="text-[10px] font-bold bg-purple-500/15 text-purple-600 dark:text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30">
-                  Em breve
-                </span>
-              </div>
-              
-              <h3 className="text-base font-extrabold text-ink leading-snug">
-                Chega de ver o dinheiro da formatura ou da atlética sumindo na conta de uma pessoa só
-              </h3>
-              
-              <p className="text-xs text-ink-soft leading-relaxed">
-                Em bancos tradicionais, o caixa da turma obrigatoriamente fica no <strong>CPF de um único tesoureiro</strong>. 
-                Se essa pessoa tiver um surto, tomar golpe ou apostar no Tigrinho, a turma perde tudo. Abrir conta conjunta institucional exige abrir CNPJ e pagar meses de cartório.
+          <h2 className="text-xl font-black text-ink">
+            Racha da cantina, churrasco e contas da república
+          </h2>
+          <p className="text-xs text-ink-soft mt-0.5">
+            Sem baixar app, sem cadastro chato e sem atrito para quem paga.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-sm font-black text-emerald-600 dark:text-emerald-400">
+              1
+            </span>
+            <div>
+              <h3 className="text-sm font-bold text-ink">Cria a cobrança em 15 segundos</h3>
+              <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
+                Lança o valor total (ex: R$ 45 no almoço da cantina), divide igualmente ou personaliza o que cada um consumiu.
               </p>
             </div>
+          </div>
 
-            {/* Pilar 1: Multisig Squads */}
-            <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-base font-black text-purple-600 dark:text-purple-400">
-                🗝️
-              </span>
-              <div>
-                <h3 className="text-sm font-bold text-ink">Cofre Multi-Assinatura (Squads Protocol)</h3>
-                <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
-                  O dinheiro do grupo fica sob regra inteligente: qualquer saque ou pagamento exige <strong>2 de 3 (ou 3 de 5) assinaturas</strong> da comissão. Ninguém mexe sozinho.
-                </p>
-              </div>
-            </div>
-
-            {/* Pilar 2: Transparência */}
-            <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-base font-black text-purple-600 dark:text-purple-400">
-                👁️
-              </span>
-              <div>
-                <h3 className="text-sm font-bold text-ink">Auditoria aberta para toda a turma</h3>
-                <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
-                  Todos os formandos ou moradores da república conseguem ver cada entrada e saída on-chain 24 horas por dia. Trocou a gestão? O histórico e o dinheiro continuam protegidos.
-                </p>
-              </div>
-            </div>
-
-            {/* Pilar 3: Rendimento */}
-            <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-base font-black text-purple-600 dark:text-purple-400">
-                📈
-              </span>
-              <div>
-                <h3 className="text-sm font-bold text-ink">Rendimento sobre saldo parado (Yield)</h3>
-                <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
-                  O dinheiro da festa que vai acontecer no fim do ano rende automaticamente em protocolos descentralizados, sem desvalorizar pela inflação.
-                </p>
-              </div>
+          <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-sm font-black text-emerald-600 dark:text-emerald-400">
+              2
+            </span>
+            <div>
+              <h3 className="text-sm font-bold text-ink">Manda 1 link no grupo do Zap</h3>
+              <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
+                Seus amigos clicam e já veem o valor exato e o QR Code. Pagam pelo Nubank, Inter ou qualquer banco <strong>sem precisar baixar nenhum app</strong>.
+              </p>
             </div>
           </div>
-        )}
+
+          <div className="rounded-2xl border border-line bg-surface p-4 flex gap-3.5 items-start">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-sm font-black text-emerald-600 dark:text-emerald-400">
+              3
+            </span>
+            <div>
+              <h3 className="text-sm font-bold text-ink">Painel em tempo real + OCR</h3>
+              <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
+                Quem pagou envia o print ou você confirma em 1 clique. O comprovante vira um recibo público e permanente na blockchain Solana.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Seção 2: Modo Grupo (Cofre da Turma) */}
+      <section className="rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-500/[0.08] via-surface to-surface p-5 flex flex-col gap-4 shadow-sm">
+        <div>
+          <div className="flex items-center justify-between gap-2 mb-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 bg-purple-500/15 px-2.5 py-0.5 rounded-full border border-purple-500/30 flex items-center gap-1">
+              <span>🛡️</span>
+              <span>Modo Grupo • Squads Multisig</span>
+            </span>
+            <span className="text-[10px] font-bold bg-purple-500/15 text-purple-600 dark:text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30">
+              Em breve
+            </span>
+          </div>
+
+          <h2 className="text-lg font-black text-ink leading-snug">
+            O cofre da turma que protege contra calote e o golpe do Tigrinho
+          </h2>
+
+          <p className="text-xs text-ink-soft mt-1.5 leading-relaxed">
+            Em bancos tradicionais, o caixa de formatura ou atlética fica no <strong>CPF de um único tesoureiro</strong>. Se ele perder tudo em apostas, a turma inteira é lesada. O Racha usa o protocolo <strong>Squads na Solana</strong> para criar um cofre conjunto inviolável.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2.5">
+          {/* Pilar 1: Multisig */}
+          <div className="rounded-2xl border border-line bg-surface/90 p-3.5 flex gap-3 items-start">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-sm font-black text-purple-600 dark:text-purple-400">
+              🗝️
+            </span>
+            <div>
+              <h3 className="text-xs font-bold text-ink">Multi-Assinatura (Squads Protocol)</h3>
+              <p className="text-[11px] text-ink-soft mt-0.5 leading-relaxed">
+                Qualquer saque ou despesa exige <strong>2 de 3 (ou 3 de 5) assinaturas</strong> da comissão. Ninguém mexe em nada sozinho.
+              </p>
+            </div>
+          </div>
+
+          {/* Pilar 2: Transparência */}
+          <div className="rounded-2xl border border-line bg-surface/90 p-3.5 flex gap-3 items-start">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-sm font-black text-purple-600 dark:text-purple-400">
+              👁️
+            </span>
+            <div>
+              <h3 className="text-xs font-bold text-ink">Extrato aberto para todos os formandos</h3>
+              <p className="text-[11px] text-ink-soft mt-0.5 leading-relaxed">
+                Toda a turma enxerga cada entrada e saída on-chain, 24 horas por dia. Acabou o &ldquo;sumiu a grana do CA&rdquo;.
+              </p>
+            </div>
+          </div>
+
+          {/* Pilar 3: Rendimento */}
+          <div className="rounded-2xl border border-line bg-surface/90 p-3.5 flex gap-3 items-start">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-sm font-black text-purple-600 dark:text-purple-400">
+              📈
+            </span>
+            <div>
+              <h3 className="text-xs font-bold text-ink">Rendimento sobre saldo parado (Yield)</h3>
+              <p className="text-[11px] text-ink-soft mt-0.5 leading-relaxed">
+                O saldo da festa rende automaticamente em protocolos descentralizados, sem desvalorizar pela inflação.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-1 flex items-center justify-between text-[11px] text-ink-faint border-t border-line/60">
+          <span>🎯 Para Atléticas, CAs e Formaturas</span>
+          <span className="text-purple-500 font-semibold">100% on-chain</span>
+        </div>
       </section>
 
       {/* Por que na Solana? */}
