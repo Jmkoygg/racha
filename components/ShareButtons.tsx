@@ -13,12 +13,17 @@ export default function ShareButtons({
 }) {
   const [copied, setCopied] = useState(false);
 
-  const msg = `💸 *Racha — ${title}*\n${perPersonLabel}\nPaga aqui pelo PIX 👉 ${url}`;
+  const targetUrl =
+    typeof window !== "undefined" && url.startsWith("/")
+      ? `${window.location.origin}${url}`
+      : url;
+
+  const msg = `💸 *Racha — ${title}*\n${perPersonLabel}\nPaga aqui pelo PIX 👉 ${targetUrl}`;
   const wa = `https://wa.me/?text=${encodeURIComponent(msg)}`;
 
   async function copy() {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(targetUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {

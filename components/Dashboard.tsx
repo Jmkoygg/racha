@@ -81,7 +81,12 @@ export default function Dashboard({
     setBusy(null);
   }
 
-  const remindMsg = `👀 falta gente pagar o racha *${charge.title}* — ${shareUrl}`;
+  const fullShareUrl =
+    typeof window !== "undefined" && shareUrl.startsWith("/")
+      ? `${window.location.origin}${shareUrl}`
+      : shareUrl;
+
+  const remindMsg = `👀 falta gente pagar o racha *${charge.title}* — ${fullShareUrl}`;
   const remindWa = `https://wa.me/?text=${encodeURIComponent(remindMsg)}`;
 
   return (

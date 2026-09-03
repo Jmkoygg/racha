@@ -1,4 +1,6 @@
 import { createWorker } from "tesseract.js";
+import os from "os";
+import path from "path";
 
 export interface ComprovanteData {
   amountCents: number | null;
@@ -105,7 +107,8 @@ let workerPromise: Promise<any> | null = null;
 async function getWorker() {
   if (!workerPromise) {
     workerPromise = (async () => {
-      const worker = await createWorker("por");
+      const cachePath = path.join(os.tmpdir(), "tesseract-cache");
+      const worker = await createWorker("por", undefined, { cachePath });
       return worker;
     })();
   }
