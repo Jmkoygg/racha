@@ -86,7 +86,7 @@ export default function Dashboard({
       ? `${window.location.origin}${shareUrl}`
       : shareUrl;
 
-  const remindMsg = `👀 falta gente pagar o racha *${charge.title}* — ${fullShareUrl}`;
+  const remindMsg = `👀 *Opa, falta gente acertar o racha: ${charge.title}*\n\nBora fechar a conta pelo PIX aqui:\n👉 ${fullShareUrl}\n\n_Atualiza em tempo real pra todo mundo ver!_ 💸`;
   const remindWa = `https://wa.me/?text=${encodeURIComponent(remindMsg)}`;
 
   return (
