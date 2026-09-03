@@ -176,46 +176,6 @@ export default function PayFlow({
     reader.readAsDataURL(file);
   }
 
-  function simulateProof() {
-    const canvas = document.createElement("canvas");
-    canvas.width = 600;
-    canvas.height = 800;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, 600, 800);
-
-    ctx.fillStyle = "#111111";
-    ctx.font = "bold 26px sans-serif";
-    ctx.fillText("Comprovante de Transferência PIX", 40, 70);
-
-    ctx.font = "18px sans-serif";
-    ctx.fillStyle = "#444444";
-    ctx.fillText(`Data: ${new Date().toLocaleDateString("pt-BR")}`, 40, 110);
-
-    ctx.font = "bold 20px sans-serif";
-    ctx.fillStyle = "#111111";
-    ctx.fillText("Valor transferido", 40, 180);
-
-    ctx.font = "bold 42px sans-serif";
-    ctx.fillStyle = "#059669";
-    ctx.fillText(brl(slice!.amountCents), 40, 235);
-
-    ctx.font = "18px sans-serif";
-    ctx.fillStyle = "#444444";
-    ctx.fillText("Destino: " + title, 40, 300);
-    ctx.fillText("Pagador: " + (name || "Amigo Convidado"), 40, 340);
-
-    ctx.font = "15px monospace";
-    ctx.fillStyle = "#666666";
-    ctx.fillText("ID da Transação:", 40, 420);
-    ctx.fillText("E0003816620260903" + Date.now().toString().slice(-14), 40, 445);
-
-    const dataUrl = canvas.toDataURL("image/png");
-    sendProof(dataUrl, true);
-  }
-
   if (phase === "done") {
     return (
       <div className="rise flex flex-col items-center gap-3 rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-8 text-center shadow-lg shadow-emerald-500/10">
@@ -315,17 +275,6 @@ export default function PayFlow({
             <span>Já paguei — Enviar print do comprovante</span>
           </>
         )}
-      </button>
-
-      {/* Botão de Teste Rápido (sem gastar PIX real) */}
-      <button
-        type="button"
-        onClick={simulateProof}
-        disabled={phase === "checking"}
-        className="flex items-center justify-center gap-1.5 rounded-2xl border border-dashed border-line bg-surface/60 py-2.5 px-4 text-xs font-semibold text-ink-faint transition hover:text-ink hover:bg-sunk active:scale-[0.98] disabled:opacity-50"
-      >
-        <span>🧪</span>
-        <span>Testar leitura com comprovante simulado (grátis)</span>
       </button>
 
       <div className="flex items-center justify-center gap-2 text-xs font-semibold text-ink-faint pt-1">
