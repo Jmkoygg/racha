@@ -1,0 +1,260 @@
+"use client";
+
+import { useRef, useState } from "react";
+import PixBox from "./PixBox";
+import { ChainBadge } from "./ui";
+
+type Slice = {
+  index: number;
+  label: string | null;
+  amountCents: number;
+  status: string;
+  brcode: string;
+};
+
+function brl(c: number) {
+  return (c / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+export default function PayFlow({
+  slug,
+  title,
+  splitMode,
+  slices,
+  paidCount,
+  peopleCount,
+}: {
+  slug: string;
+  title: string;
+  splitMode: string;
+  slices: Slice[];
+  paidCount: number;
+  peopleCount: number;
+}) {
+  const pending = slices.filter((s) => s.status !== "paid");
+  const firstPending = pending[0];
+
+  const [picked, setPicked] = useState<number | null>(
+    splitMode === "equal" ? (firstPending?.index ?? null) : null,
+  );
+  const [name, setName] = useState("");
+  const [phase, setPhase] = useState<"idle" | "checking" | "done" | "error">("idle");
+  const [msg, setMsg] = useState<string | null>(null);
+  const [chainUrl, setChainUrl] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const slice = slices.find((s) => s.index === picked) ?? null;
+
+  if (paidCount >= peopleCount && !slice) {
+    return (
+      <div className="rounded-2xl border border-line bg-surface p-6 text-center">
+        <p className="text-lg font-bold text-brand">Todo mundo já pagou 🎉</p>
+        <p className="mt-1 text-sm text-ink-soft">{title}</p>
+      </div>
+    );
+  }
+
+  if (!slice) {
+    return (
+      <div className="flex flex-col gap-3">
+        <p className="text-sm font-semibold text-ink-soft">Escolha sua parte:</p>
+        {pending.map((s) => (
+          <button
+            key={s.index}
+            onClick={() => setPicked(s.index)}
+            className="flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-3.5 text-left active:bg-sunk"
+          >
+            <span className="font-semibold">{s.label || `Parte ${s.index}`}</span>
+            <span className="font-bold">{brl(s.amountCents)}</span>
+          </button>
+        ))}
+        {pending.length === 0 && (
+          <p className="text-sm text-ink-faint">Todas as partes já foram pagas.</p>
+        )}
+      </div>
+    );
+  }
+
+  async function sendProof(dataUrl: string, isSimulation = false) {
+    setPhase("checking");
+    setMsg(null);
+    try {
+      const res = await fetch(`/api/charges/${slug}/proof`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          sliceIndex: slice!.index,
+          image: dataUrl,
+          payerName: name,
+          isSimulation,
+        }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (d.ok) {
+        setPhase("done");
+        setChainUrl(d.chainUrl ?? null);
+      } else {
+        setPhase("error");
+        setMsg(d.message || "Não foi possível confirmar o comprovante.");
+      }
+    } catch {
+      setPhase("error");
+      setMsg("Erro de conexão ao enviar comprovante.");
+    }
+  }
+
+  function upload(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      sendProof(dataUrl);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function simulateProof() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 600;
+    canvas.height = 800;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, 600, 800);
+
+    ctx.fillStyle = "#111111";
+    ctx.font = "bold 26px sans-serif";
+    ctx.fillText("Comprovante de Transferência PIX", 40, 70);
+
+    ctx.font = "18px sans-serif";
+    ctx.fillStyle = "#444444";
+    ctx.fillText(`Data: ${new Date().toLocaleDateString("pt-BR")}`, 40, 110);
+
+    ctx.font = "bold 20px sans-serif";
+    ctx.fillStyle = "#111111";
+    ctx.fillText("Valor transferido", 40, 180);
+
+    ctx.font = "bold 42px sans-serif";
+    ctx.fillStyle = "#059669";
+    ctx.fillText(brl(slice!.amountCents), 40, 235);
+
+    ctx.font = "18px sans-serif";
+    ctx.fillStyle = "#444444";
+    ctx.fillText("Destino: " + title, 40, 300);
+    ctx.fillText("Pagador: " + (name || "Amigo Convidado"), 40, 340);
+
+    ctx.font = "15px monospace";
+    ctx.fillStyle = "#666666";
+    ctx.fillText("ID da Transação:", 40, 420);
+    ctx.fillText("E0003816620260903" + Date.now().toString().slice(-14), 40, 445);
+
+    const dataUrl = canvas.toDataURL("image/png");
+    sendProof(dataUrl, true);
+  }
+
+  if (phase === "done") {
+    return (
+      <div className="rise flex flex-col items-center gap-3 rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-8 text-center shadow-lg shadow-emerald-500/10">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500 text-3xl text-white shadow-md shadow-emerald-500/30 animate-bounce">
+          ✓
+        </div>
+        <div>
+          <h2 className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+            Pagamento Confirmado!
+          </h2>
+          <p className="mt-1 text-sm font-medium text-ink-soft">
+            {brl(slice.amountCents)} conferido com sucesso{name ? ` para ${name}` : ""}.
+          </p>
+        </div>
+
+        <div className="mt-2 flex flex-col items-center gap-2">
+          <span className="text-xs text-ink-faint">Registro imutável na blockchain:</span>
+          <ChainBadge href={chainUrl} label="Comprovante na Solana Devnet" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="rounded-3xl border border-line bg-surface p-6 shadow-sm">
+        <span className="block text-center text-xs font-bold uppercase tracking-wider text-ink-faint">
+          {slice.label ? slice.label : "Sua parte no racha"}
+        </span>
+        <p className="mt-1 text-center text-4xl font-black tracking-tight text-ink">
+          {brl(slice.amountCents)}
+        </p>
+
+        <div className="mt-5">
+          <PixBox brcode={slice.brcode} />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Seu nome ou apelido (pra aparecer no painel)"
+          className="w-full rounded-2xl border border-line bg-surface px-4 py-3.5 text-sm font-medium text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-emerald-500/10 placeholder:text-ink-faint"
+        />
+      </div>
+
+      {phase === "error" && msg && (
+        <div className="flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-medium text-red-600 dark:text-red-400">
+          <span>⚠️</span>
+          <span>{msg}</span>
+        </div>
+      )}
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) upload(f);
+        }}
+      />
+
+      <button
+        onClick={() => fileRef.current?.click()}
+        disabled={phase === "checking"}
+        className="flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 px-5 py-4 text-center font-bold text-white shadow-lg shadow-emerald-500/25 transition hover:brightness-105 active:scale-[0.98] disabled:opacity-75 cursor-pointer"
+      >
+        {phase === "checking" ? (
+          <>
+            <svg className="h-5 w-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span>Lendo comprovante com OCR...</span>
+          </>
+        ) : (
+          <>
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span>Já paguei — Enviar print do comprovante</span>
+          </>
+        )}
+      </button>
+
+      {/* Botão de Teste Rápido (sem gastar PIX real) */}
+      <button
+        type="button"
+        onClick={simulateProof}
+        disabled={phase === "checking"}
+        className="flex items-center justify-center gap-1.5 rounded-2xl border border-dashed border-line bg-surface/60 py-2.5 px-4 text-xs font-semibold text-ink-faint transition hover:text-ink hover:bg-sunk active:scale-[0.98] disabled:opacity-50"
+      >
+        <span>🧪</span>
+        <span>Testar leitura com comprovante simulado (grátis)</span>
+      </button>
+
+      <div className="flex items-center justify-center gap-2 text-xs font-semibold text-ink-faint pt-1">
+        <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+        <span>{paidCount} de {peopleCount} amigos já pagaram</span>
+      </div>
+    </div>
+  );
+}

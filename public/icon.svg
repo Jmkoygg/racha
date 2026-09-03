@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e1310" />
+      <stop offset="100%" stop-color="#141c16" />
+    </linearGradient>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="solanaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9945ff" />
+      <stop offset="100%" stop-color="#14f195" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background container -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+  <rect x="12" y="12" width="488" height="488" rx="116" fill="none" stroke="#243028" stroke-width="4" />
+
+  <!-- Outer Glow circle -->
+  <circle cx="256" cy="256" r="160" fill="url(#brandGrad)" opacity="0.15" filter="url(#glow)" />
+
+  <!-- Center Rounded Badge -->
+  <rect x="116" y="116" width="280" height="280" rx="64" fill="url(#brandGrad)" />
+
+  <!-- "R" Letter Geometry -->
+  <path d="M 210 180 L 270 180 C 295 180 315 195 315 220 C 315 245 295 260 270 260 L 235 260 L 235 332 L 205 332 L 205 180 Z M 235 204 L 235 236 L 268 236 C 280 236 290 228 290 220 C 290 212 280 204 268 204 Z" fill="#ffffff" />
+  <!-- R leg with slash styling -->
+  <path d="M 262 254 L 316 332 L 282 332 L 236 264 Z" fill="#ffffff" />
+
+  <!-- Little Solana accent dot -->
+  <circle cx="330" cy="180" r="14" fill="url(#solanaGrad)" />
+</svg>

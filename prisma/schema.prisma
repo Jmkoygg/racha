@@ -1,0 +1,57 @@
+// Índice local do app. A verdade permanente vive on-chain (Solana devnet):
+// toda cobrança criada e todo pagamento confirmado viram uma transação memo.
+// Este banco é reconstruível a partir da chain — é só cache pra tela carregar rápido.
+//
+// Hoje: SQLite (dev). Deploy real: trocar provider para "postgresql" e o DATABASE_URL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organizer {
+  id        String   @id @default(cuid())
+  name      String?
+  pixKey    String
+  createdAt DateTime @default(now())
+  charges   Charge[]
+}
+
+model Charge {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  organizerId String
+  organizer   Organizer @relation(fields: [organizerId], references: [id])
+  pixKey      String
+  splitMode   String   @default("equal") // equal | custom
+  totalCents  Int
+  peopleCount Int
+  status      String   @default("open") // open | settled
+  chainSig    String?  // assinatura da tx de criação na devnet
+  createdAt   DateTime @default(now())
+  slices      Slice[]
+}
+
+model Slice {
+  id               String    @id @default(cuid())
+  chargeId         String
+  charge           Charge    @relation(fields: [chargeId], references: [id])
+  index            Int       // 1..N
+  label            String?   // "com borda" no modo custom; null no modo igual
+  amountCents      Int
+  status           String    @default("pending") // pending | paid | mismatch
+  payerName        String?
+  paidAt           DateTime?
+  pixTxId          String?   @unique // EndToEndId do comprovante — impede reuso
+  proofAmountCents Int?
+  proofRaw         String?   // JSON bruto do que a visão leu (auditoria)
+  chainSig         String?   // assinatura da tx de confirmação na devnet
+  confirmedBy      String    @default("proof") // proof | manual
+
+  @@unique([chargeId, index])
+}
