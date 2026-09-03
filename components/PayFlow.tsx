@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import PixBox from "./PixBox";
 import { ChainBadge } from "./ui";
 
@@ -43,6 +43,46 @@ export default function PayFlow({
   const [chainUrl, setChainUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Agrupa as fatias por tipo de consumo (label + valor)
+  const groupOptions = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        label: string;
+        amountCents: number;
+        availableSliceIndex: number | null;
+        total: number;
+        remaining: number;
+      }
+    >();
+
+    for (const s of slices) {
+      const key = `${s.label || "Consumo"}_${s.amountCents}`;
+      const existing = map.get(key);
+      const isPending = s.status !== "paid";
+
+      if (!existing) {
+        map.set(key, {
+          label: s.label || "Consumo",
+          amountCents: s.amountCents,
+          availableSliceIndex: isPending ? s.index : null,
+          total: 1,
+          remaining: isPending ? 1 : 0,
+        });
+      } else {
+        existing.total += 1;
+        if (isPending) {
+          existing.remaining += 1;
+          if (existing.availableSliceIndex === null) {
+            existing.availableSliceIndex = s.index;
+          }
+        }
+      }
+    }
+
+    return Array.from(map.values());
+  }, [slices]);
+
   const slice = slices.find((s) => s.index === picked) ?? null;
 
   if (paidCount >= peopleCount && !slice) {
@@ -56,21 +96,45 @@ export default function PayFlow({
 
   if (!slice) {
     return (
-      <div className="flex flex-col gap-3">
-        <p className="text-sm font-semibold text-ink-soft">Escolha sua parte:</p>
-        {pending.map((s) => (
-          <button
-            key={s.index}
-            onClick={() => setPicked(s.index)}
-            className="flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-3.5 text-left active:bg-sunk"
-          >
-            <span className="font-semibold">{s.label || `Parte ${s.index}`}</span>
-            <span className="font-bold">{brl(s.amountCents)}</span>
-          </button>
-        ))}
-        {pending.length === 0 && (
-          <p className="text-sm text-ink-faint">Todas as partes já foram pagas.</p>
-        )}
+      <div className="rise flex flex-col gap-4">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-ink-faint">
+            O que você consumiu?
+          </span>
+          <h2 className="text-base font-extrabold text-ink mt-0.5">
+            Selecione a sua parte para pagar
+          </h2>
+        </div>
+
+        <div className="flex flex-col gap-2.5">
+          {groupOptions.map((opt, i) => {
+            const isAvailable = opt.availableSliceIndex !== null;
+            return (
+              <button
+                key={i}
+                disabled={!isAvailable}
+                onClick={() => opt.availableSliceIndex !== null && setPicked(opt.availableSliceIndex)}
+                className={`flex items-center justify-between rounded-2xl border p-4 text-left transition-all ${
+                  isAvailable
+                    ? "border-line bg-surface hover:border-emerald-500/40 hover:bg-sunk active:scale-[0.99] cursor-pointer"
+                    : "border-line/40 bg-sunk/50 opacity-50 cursor-not-allowed"
+                }`}
+              >
+                <div>
+                  <span className="block text-sm font-bold text-ink">{opt.label}</span>
+                  <span className="text-[11px] text-ink-faint">
+                    {isAvailable ? `${opt.remaining} de ${opt.total} vagas restantes` : "Esgotado / Já pago"}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-base font-black text-emerald-600 dark:text-emerald-400">
+                    {brl(opt.amountCents)}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
     );
   }

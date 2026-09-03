@@ -179,10 +179,14 @@ export default function Dashboard({
                   >
                     {isPaid ? "✓" : s.index}
                   </div>
-
                   <div className="min-w-0">
-                    <p className="truncate font-bold text-ink text-sm">
-                      {s.payerName || s.label || `Amigo ${s.index}`}
+                    <p className="truncate font-bold text-ink text-sm flex items-center gap-1.5">
+                      <span>{s.payerName || `Amigo ${s.index}`}</span>
+                      {s.label && (
+                        <span className="text-[10px] font-semibold text-ink-faint bg-sunk px-1.5 py-0.5 rounded">
+                          {s.label}
+                        </span>
+                      )}
                     </p>
                     <p className="text-xs font-medium text-ink-faint">
                       {isPaid ? (
