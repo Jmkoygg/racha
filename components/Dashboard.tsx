@@ -17,6 +17,7 @@ type Slice = {
   paidAt: string | null;
   confirmedBy: string;
   chainUrl: string | null;
+  proofUrl?: string | null;
 };
 type Charge = {
   slug: string;
@@ -41,6 +42,7 @@ export default function Dashboard({
 }) {
   const [charge, setCharge] = useState<Charge>(initial);
   const [busy, setBusy] = useState<number | "settle" | null>(null);
+  const [viewingProof, setViewingProof] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     const res = await fetch(`/api/charges/${initial.slug}`, { cache: "no-store" });
@@ -209,8 +211,19 @@ export default function Dashboard({
                   </div>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-2.5">
+                <div className="flex shrink-0 items-center gap-2">
                   <span className="text-sm font-black text-ink">{brl(s.amountCents)}</span>
+                  {s.proofUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setViewingProof(s.proofUrl!)}
+                      title="Ver print do comprovante enviado"
+                      className="flex h-7 items-center gap-1 rounded-lg bg-sunk px-2 text-[11px] font-bold text-ink-soft hover:text-ink hover:bg-surface border border-line transition cursor-pointer active:scale-95"
+                    >
+                      <span>👁️</span>
+                      <span>Print</span>
+                    </button>
+                  )}
                   {isPaid && s.chainUrl && (
                     <a
                       href={s.chainUrl}
@@ -235,6 +248,41 @@ export default function Dashboard({
           })}
         </ul>
       </div>
+
+      {/* Modal de visualização do comprovante para o Organizador */}
+      {viewingProof && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-xs animate-in fade-in"
+          onClick={() => setViewingProof(null)}
+        >
+          <div
+            className="relative max-w-sm w-full rounded-3xl bg-surface border border-line p-4 shadow-2xl flex flex-col gap-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-line pb-2.5">
+              <span className="text-xs font-bold text-ink flex items-center gap-1.5">
+                <span>📄</span>
+                <span>Comprovante enviado pelo amigo</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setViewingProof(null)}
+                className="text-xs font-bold text-ink-faint hover:text-ink px-2 py-1 rounded-lg bg-sunk cursor-pointer"
+              >
+                ✕ Fechar
+              </button>
+            </div>
+            <div className="overflow-hidden rounded-2xl border border-line max-h-[70vh] flex items-center justify-center bg-black/5 p-1">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={viewingProof}
+                alt="Comprovante de pagamento"
+                className="object-contain w-full max-h-[68vh] rounded-xl"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Ações Extras */}
       <div className="flex flex-col gap-2.5 pt-2">

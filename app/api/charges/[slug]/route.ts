@@ -37,6 +37,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
       paidAt: s.paidAt,
       confirmedBy: s.confirmedBy,
       chainUrl: s.chainSig ? explorerTxUrl(s.chainSig) : null,
+      proofUrl: isOrganizer && s.proofRaw ? s.proofRaw : null,
     })),
   });
 }

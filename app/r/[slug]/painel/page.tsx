@@ -48,6 +48,7 @@ export default async function PainelPage({
       paidAt: s.paidAt ? s.paidAt.toISOString() : null,
       confirmedBy: s.confirmedBy,
       chainUrl: s.chainSig ? explorerTxUrl(s.chainSig) : null,
+      proofUrl: s.proofRaw ?? null,
     })),
   };
 
