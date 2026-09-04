@@ -113,76 +113,6 @@ export function parsePixText(text: string): Omit<ComprovanteData, "raw"> {
   };
 }
 
-/** Tenta extrair dados via Google Gemini Vision se GEMINI_API_KEY estiver configurada */
-async function readWithGemini(imageBase64: string, mimeType: string): Promise<ComprovanteData | null> {
-  const apiKey = process.env.GEMINI_API_KEY?.trim();
-  if (!apiKey) return null;
-
-  try {
-    const prompt = `Você é um leitor especialista em comprovantes bancários de PIX no Brasil (Nubank, Inter, PicPay, Itaú, BB, Caixa, etc).
-Analise a imagem deste comprovante e extraia as informações com extrema exatidão no seguinte formato JSON:
-{
-  "amountCents": <valor pago em CENTAVOS como número inteiro, ex: para R$ 0,50 retorne 50, para R$ 13,80 retorne 1380, ou null se ilegível>,
-  "txId": "<código EndToEndId da transação PIX que começa com 'E' ou código de autenticação, ou null>",
-  "destName": "<nome da pessoa que RECEBEU o pagamento / favorecido ou null>",
-  "payerName": "<nome da pessoa que PAGOU / pagador / origem ou null>",
-  "dateISO": "<data e hora da transferência em formato ISO 8601 YYYY-MM-DDTHH:mm:ss-03:00 ou null>"
-}
-Responda APENAS o JSON puro, sem crases de markdown e sem explicações.`;
-
-    const model = "gemini-2.0-flash";
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt },
-                {
-                  inlineData: {
-                    mimeType: mimeType || "image/jpeg",
-                    data: imageBase64,
-                  },
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.1,
-            responseMimeType: "application/json",
-          },
-        }),
-      },
-    );
-
-    if (!res.ok) {
-      console.warn("[vision] Gemini API retornou erro:", res.status, await res.text());
-      return null;
-    }
-
-    const json = await res.json();
-    const rawText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!rawText) return null;
-
-    const parsed = JSON.parse(rawText);
-    return {
-      amountCents: typeof parsed.amountCents === "number" ? parsed.amountCents : null,
-      txId: parsed.txId || null,
-      destName: parsed.destName || null,
-      payerName: parsed.payerName || null,
-      dateISO: parsed.dateISO || null,
-      destKey: null,
-      raw: rawText,
-    };
-  } catch (err) {
-    console.warn("[vision] Exceção ao chamar Gemini Vision:", err);
-    return null;
-  }
-}
-
 let workerPromise: Promise<any> | null = null;
 
 async function getWorker() {
@@ -198,18 +128,11 @@ async function getWorker() {
 
 export async function readComprovante(
   imageBase64: string,
-  mimeType: string,
+  _mimeType: string,
 ): Promise<ComprovanteData> {
-  // 1. Tenta Gemini Vision em primeiro lugar (ultrarrápido, ~800ms e 100% preciso)
-  const geminiResult = await readWithGemini(imageBase64, mimeType);
-  if (geminiResult && geminiResult.amountCents !== null) {
-    return geminiResult;
-  }
-
-  // 2. Fallback local: Tesseract OCR com timeout de 20s
   const buffer = Buffer.from(imageBase64, "base64");
   const timeoutPromise = new Promise<null>((resolve) =>
-    setTimeout(() => resolve(null), 20000),
+    setTimeout(() => resolve(null), 25000),
   );
 
   try {
