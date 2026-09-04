@@ -18,8 +18,13 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   if (!parsed.success) return NextResponse.json({ error: "invalid" }, { status: 400 });
 
   if (parsed.data.action === "settle") {
-    const c = await settleCharge(slug, organizerId);
-    return NextResponse.json({ ok: !!c });
+    try {
+      const c = await settleCharge(slug, organizerId);
+      return NextResponse.json({ ok: !!c });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Não foi possível encerrar.";
+      return NextResponse.json({ error: msg }, { status: 400 });
+    }
   }
 
   if (!parsed.data.sliceIndex)

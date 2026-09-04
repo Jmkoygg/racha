@@ -41,8 +41,9 @@ export default function Dashboard({
   justCreated: boolean;
 }) {
   const [charge, setCharge] = useState<Charge>(initial);
-  const [busy, setBusy] = useState<number | "settle" | null>(null);
+  const [busy, setBusy] = useState<number | "settle" | "delete" | null>(null);
   const [viewingProof, setViewingProof] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const refresh = useCallback(async () => {
     const res = await fetch(`/api/charges/${initial.slug}`, { cache: "no-store" });
@@ -72,7 +73,9 @@ export default function Dashboard({
     await refresh();
     setBusy(null);
   }
+
   async function settle() {
+    if (paidCount < charge.peopleCount) return;
     setBusy("settle");
     await fetch(`/api/charges/${charge.slug}/confirm`, {
       method: "POST",
@@ -81,6 +84,19 @@ export default function Dashboard({
     });
     await refresh();
     setBusy(null);
+  }
+
+  async function removeCharge() {
+    setBusy("delete");
+    const res = await fetch(`/api/charges/${charge.slug}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      window.location.href = "/";
+    } else {
+      setBusy(null);
+      alert("Não foi possível excluir a cobrança.");
+    }
   }
 
   const fullShareUrl =
@@ -285,7 +301,7 @@ export default function Dashboard({
       )}
 
       {/* Ações Extras */}
-      <div className="flex flex-col gap-2.5 pt-2">
+      <div className="flex flex-col gap-3 pt-2">
         {paidCount < charge.peopleCount && (
           <a
             href={remindWa}
@@ -298,22 +314,65 @@ export default function Dashboard({
           </a>
         )}
 
-        {charge.status !== "settled" && (
+        {/* Só permite quitar se TODO MUNDO já tiver pago */}
+        {charge.status !== "settled" && paidCount === charge.peopleCount && (
           <button
             onClick={settle}
             disabled={busy === "settle"}
-            className="flex items-center justify-center rounded-2xl border border-line bg-surface px-4 py-3 text-center text-xs font-bold text-ink-faint transition hover:text-ink hover:bg-sunk active:scale-[0.98] disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 px-4 py-3.5 text-center text-sm font-bold text-white shadow-lg shadow-emerald-500/25 transition hover:brightness-105 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
           >
-            {busy === "settle" ? "Encerrando..." : "Encerrar racha"}
+            <span>✓</span>
+            <span>{busy === "settle" ? "Quitando..." : "Quitar racha (todos pagaram)"}</span>
           </button>
         )}
 
         {charge.status === "settled" && (
-          <div className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 p-3 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+          <div className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 p-3.5 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             <span>🎉</span>
-            <span>Racha encerrado com sucesso!</span>
+            <span>Racha 100% quitado com sucesso!</span>
           </div>
         )}
+
+        {/* Opção de Excluir cobrança */}
+        <div className="pt-2 border-t border-line/60">
+          {!confirmDelete ? (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              className="w-full flex items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface py-2.5 text-center text-xs font-semibold text-ink-faint hover:text-danger hover:border-danger/40 transition cursor-pointer"
+            >
+              <span>🗑️</span>
+              <span>Excluir esta cobrança</span>
+            </button>
+          ) : (
+            <div className="rounded-2xl border border-danger/30 bg-danger/5 p-3.5 flex flex-col gap-2.5 text-center animate-in fade-in">
+              <p className="text-xs font-bold text-ink">
+                Tem certeza que deseja excluir este racha?
+              </p>
+              <p className="text-[11px] text-ink-faint">
+                Todos os dados e comprovantes associados serão apagados permanentemente.
+              </p>
+              <div className="grid grid-cols-2 gap-2 mt-1">
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  disabled={busy === "delete"}
+                  className="rounded-xl border border-line bg-surface py-2 text-xs font-bold text-ink hover:bg-sunk cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={removeCharge}
+                  disabled={busy === "delete"}
+                  className="rounded-xl bg-danger py-2 text-xs font-bold text-white shadow-sm hover:brightness-105 active:scale-95 cursor-pointer disabled:opacity-50"
+                >
+                  {busy === "delete" ? "Excluindo..." : "Sim, excluir"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

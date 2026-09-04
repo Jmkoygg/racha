@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getChargeBySlug } from "@/lib/charges";
+import { getChargeBySlug, deleteCharge } from "@/lib/charges";
 import { getOrganizerId } from "@/lib/session";
 import { explorerTxUrl } from "@/lib/solana";
 
@@ -40,4 +40,15 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
       proofUrl: isOrganizer && s.proofRaw ? s.proofRaw : null,
     })),
   });
+}
+
+export async function DELETE(_req: Request, ctx: { params: Promise<{ slug: string }> }) {
+  const { slug } = await ctx.params;
+  const organizerId = await getOrganizerId();
+  if (!organizerId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const ok = await deleteCharge(slug, organizerId);
+  if (!ok) return NextResponse.json({ error: "forbidden_or_not_found" }, { status: 403 });
+
+  return NextResponse.json({ ok: true });
 }

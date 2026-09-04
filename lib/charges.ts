@@ -170,9 +170,27 @@ export async function setPayerName(slug: string, sliceIndex: number, name: strin
 }
 
 export async function settleCharge(slug: string, organizerId: string) {
-  const charge = await prisma.charge.findUnique({ where: { slug } });
+  const charge = await prisma.charge.findUnique({
+    where: { slug },
+    include: { slices: true },
+  });
   if (!charge || charge.organizerId !== organizerId) return null;
+
+  const allPaid = charge.slices.every((s) => s.status === "paid");
+  if (!allPaid) {
+    throw new Error("Não é possível encerrar a cobrança antes que todos os amigos paguem.");
+  }
+
   return prisma.charge.update({ where: { id: charge.id }, data: { status: "settled" } });
+}
+
+export async function deleteCharge(slug: string, organizerId: string) {
+  const charge = await prisma.charge.findUnique({ where: { slug } });
+  if (!charge || charge.organizerId !== organizerId) return false;
+
+  await prisma.slice.deleteMany({ where: { chargeId: charge.id } });
+  await prisma.charge.delete({ where: { id: charge.id } });
+  return true;
 }
 
 async function maybeSettle(chargeId: string) {
