@@ -52,6 +52,13 @@ export async function getOrganizer() {
   return prisma.organizer.findUnique({ where: { id } });
 }
 
+export class OrganizerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "OrganizerError";
+  }
+}
+
 export async function getOrganizerId(): Promise<string | null> {
   const jar = await cookies();
   const raw = jar.get(COOKIE)?.value;
@@ -59,14 +66,61 @@ export async function getOrganizerId(): Promise<string | null> {
   return verify(raw);
 }
 
-/** Cria ou atualiza o organizador ligado a este navegador. */
+/** Cria ou recupera o organizador impedindo contas duplicadas pela chave PIX. */
 export async function upsertOrganizer(name: string, pixKey: string, pin?: string) {
   const jar = await cookies();
   const existingId = await getOrganizerId();
-  const pinHash = pin && pin.trim().length >= 4 ? hashPin(pin.trim()) : undefined;
+  const trimmedPin = pin?.trim();
+  const pinHash = trimmedPin && trimmedPin.length >= 4 ? hashPin(trimmedPin) : undefined;
+
+  // 1. Verifica se já existe uma conta cadastrada com essa mesma chave PIX
+  const existingByPix = await prisma.organizer.findFirst({
+    where: { pixKey },
+  });
 
   let organizer;
-  if (existingId && (await prisma.organizer.findUnique({ where: { id: existingId } }))) {
+
+  if (existingByPix) {
+    // Cenário A: A conta com essa chave PIX já existe!
+    if (existingId && existingId === existingByPix.id) {
+      // É o mesmo usuário atualizando seus próprios dados
+      organizer = await prisma.organizer.update({
+        where: { id: existingByPix.id },
+        data: {
+          name: name || existingByPix.name,
+          ...(pinHash ? { pinHash } : {}),
+        },
+      });
+    } else {
+      // Está tentando criar de novo de outro navegador ou celular
+      if (existingByPix.pinHash) {
+        if (trimmedPin && verifyPin(trimmedPin, existingByPix.pinHash)) {
+          // O PIN digitado bateu! Loga direto na conta existente sem duplicar
+          organizer = existingByPix;
+          if (name && name !== existingByPix.name) {
+            organizer = await prisma.organizer.update({
+              where: { id: existingByPix.id },
+              data: { name },
+            });
+          }
+        } else {
+          throw new OrganizerError(
+            "Essa chave PIX já possui uma conta com PIN. Entre pela aba 'Entrar de outro celular' ou confirme seu PIN.",
+          );
+        }
+      } else {
+        // A conta existente não tinha PIN: vincula e adiciona o PIN/nome
+        organizer = await prisma.organizer.update({
+          where: { id: existingByPix.id },
+          data: {
+            name: name || existingByPix.name,
+            ...(pinHash ? { pinHash } : {}),
+          },
+        });
+      }
+    }
+  } else if (existingId && (await prisma.organizer.findUnique({ where: { id: existingId } }))) {
+    // Cenário B: Atualizando o organizador atual
     organizer = await prisma.organizer.update({
       where: { id: existingId },
       data: {
@@ -76,6 +130,7 @@ export async function upsertOrganizer(name: string, pixKey: string, pin?: string
       },
     });
   } else {
+    // Cenário C: Criação normal de conta nova
     organizer = await prisma.organizer.create({
       data: {
         name: name || null,
@@ -92,6 +147,7 @@ export async function upsertOrganizer(name: string, pixKey: string, pin?: string
     maxAge: MAX_AGE,
     path: "/",
   });
+
   return organizer;
 }
 

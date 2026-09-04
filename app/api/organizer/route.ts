@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { upsertOrganizer, getOrganizer } from "@/lib/session";
+import { upsertOrganizer, getOrganizer, OrganizerError } from "@/lib/session";
 import { normalizePixKey } from "@/lib/pix";
 
 const schema = z.object({
@@ -29,9 +29,13 @@ export async function POST(req: Request) {
     );
     return NextResponse.json({ organizer });
   } catch (err: unknown) {
+    if (err instanceof OrganizerError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+    const msg = err instanceof Error ? err.message : String(err);
     console.error("Erro ao salvar organizador:", err);
     return NextResponse.json(
-      { error: "Erro ao conectar com o banco de dados. Tente novamente." },
+      { error: `Erro ao salvar organizador: ${msg}` },
       { status: 500 },
     );
   }
