@@ -185,8 +185,16 @@ export async function settleCharge(slug: string, organizerId: string) {
 }
 
 export async function deleteCharge(slug: string, organizerId: string) {
-  const charge = await prisma.charge.findUnique({ where: { slug } });
+  const charge = await prisma.charge.findUnique({
+    where: { slug },
+    include: { slices: true },
+  });
   if (!charge || charge.organizerId !== organizerId) return false;
+
+  const hasPaid = charge.slices.some((s) => s.status === "paid");
+  if (hasPaid) {
+    throw new Error("Não é possível excluir um racha que já possui pagamentos recebidos.");
+  }
 
   await prisma.slice.deleteMany({ where: { chargeId: charge.id } });
   await prisma.charge.delete({ where: { id: charge.id } });

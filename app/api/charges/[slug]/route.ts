@@ -47,8 +47,12 @@ export async function DELETE(_req: Request, ctx: { params: Promise<{ slug: strin
   const organizerId = await getOrganizerId();
   if (!organizerId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const ok = await deleteCharge(slug, organizerId);
-  if (!ok) return NextResponse.json({ error: "forbidden_or_not_found" }, { status: 403 });
-
-  return NextResponse.json({ ok: true });
+  try {
+    const ok = await deleteCharge(slug, organizerId);
+    if (!ok) return NextResponse.json({ error: "forbidden_or_not_found" }, { status: 403 });
+    return NextResponse.json({ ok: true });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Não foi possível excluir a cobrança.";
+    return NextResponse.json({ error: msg }, { status: 400 });
+  }
 }
