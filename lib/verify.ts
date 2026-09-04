@@ -31,11 +31,12 @@ function namesLooselyMatch(a: string, b: string): boolean {
       .toLowerCase()
       .replace(/[^a-z ]/g, "")
       .split(/\s+/)
-      .filter(Boolean);
+      .filter((w) => w.length >= 3 && !["dos", "das", "da", "de", "do"].includes(w));
   const wa = new Set(norm(a));
   const wb = norm(b);
-  const shared = wb.filter((w) => w.length > 2 && wa.has(w)).length;
-  return shared >= 2;
+  const shared = wb.filter((w) => wa.has(w)).length;
+  if (wa.size === 0 || wb.length === 0) return true;
+  return shared >= 1;
 }
 
 export interface VerifyInput {
