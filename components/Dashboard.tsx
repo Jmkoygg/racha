@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import ShareButtons from "./ShareButtons";
 import { ChainBadge } from "./ui";
 
@@ -44,6 +45,26 @@ export default function Dashboard({
   const [busy, setBusy] = useState<number | "delete" | null>(null);
   const [viewingProof, setViewingProof] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (viewingProof) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setViewingProof(null);
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [viewingProof]);
 
   const refresh = useCallback(async () => {
     const res = await fetch(`/api/charges/${initial.slug}`, { cache: "no-store" });
@@ -254,39 +275,41 @@ export default function Dashboard({
         </ul>
       </div>
 
-      {/* Modal de visualização do comprovante para o Organizador */}
-      {viewingProof && (
+      {/* Modal de visualização do comprovante para o Organizador (via Portal para evitar interferência de transform) */}
+      {mounted && viewingProof && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-xs animate-in fade-in"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
           onClick={() => setViewingProof(null)}
+          style={{ margin: 0 }}
         >
           <div
-            className="relative max-w-sm w-full rounded-3xl bg-surface border border-line p-4 shadow-2xl flex flex-col gap-3"
+            className="relative max-w-sm w-full max-h-[85vh] rounded-3xl bg-surface border border-line p-4 shadow-2xl flex flex-col gap-3"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-line pb-2.5">
               <span className="text-xs font-bold text-ink flex items-center gap-1.5">
                 <span>📄</span>
-                <span>Comprovante enviado pelo amigo</span>
+                <span>Comprovante de pagamento</span>
               </span>
               <button
                 type="button"
                 onClick={() => setViewingProof(null)}
-                className="text-xs font-bold text-ink-faint hover:text-ink px-2 py-1 rounded-lg bg-sunk cursor-pointer"
+                className="text-xs font-bold text-ink-faint hover:text-ink px-2.5 py-1 rounded-lg bg-sunk hover:bg-line/40 transition cursor-pointer"
               >
                 ✕ Fechar
               </button>
             </div>
-            <div className="overflow-hidden rounded-2xl border border-line max-h-[70vh] flex items-center justify-center bg-black/5 p-1">
+            <div className="overflow-auto rounded-2xl border border-line flex items-center justify-center bg-black/5 p-1 max-h-[calc(85vh-75px)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={viewingProof}
                 alt="Comprovante de pagamento"
-                className="object-contain w-full max-h-[68vh] rounded-xl"
+                className="object-contain w-full h-auto max-h-[70vh] rounded-xl select-none"
               />
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Ações Extras */}
