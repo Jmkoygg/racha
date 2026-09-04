@@ -222,7 +222,7 @@ export default function NovaForm({ pixKey }: { pixKey: string }) {
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                onClick={() => setPeople(Math.max(2, people - 1))}
+                onClick={() => setPeople(Math.max(1, people - 1))}
                 className="h-11 w-11 rounded-xl border border-line bg-surface text-xl font-bold text-ink hover:bg-sunk active:scale-95 cursor-pointer"
               >
                 –
