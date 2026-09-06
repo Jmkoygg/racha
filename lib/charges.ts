@@ -1,8 +1,6 @@
 import { customAlphabet } from "nanoid";
 import { prisma } from "./db";
 import { writeRecord } from "./solana";
-import { readComprovante, visionConfigured, type ComprovanteData } from "./vision";
-import { verifyComprovante } from "./verify";
 
 const slugId = customAlphabet("abcdefghjkmnpqrstuvwxyz23456789", 8);
 

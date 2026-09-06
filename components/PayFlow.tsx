@@ -159,7 +159,7 @@ export default function PayFlow({
         setChainUrl(d.chainUrl ?? null);
       } else {
         setPhase("error");
-        setMsg(d.message || "Não foi possível confirmar o comprovante.");
+        setMsg(d.message || "Não foi possível registrar o comprovante.");
       }
     } catch {
       setPhase("error");
@@ -202,10 +202,10 @@ export default function PayFlow({
         </div>
         <div>
           <h2 className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-            Pagamento Confirmado!
+            Pagamento Enviado!
           </h2>
           <p className="mt-1 text-sm font-medium text-ink-soft">
-            {brl(slice.amountCents)} conferido com sucesso{name ? ` para ${name}` : ""}.
+            {brl(slice.amountCents)} registrado{name ? ` para ${name}` : ""}. O organizador vê no painel na hora.
           </p>
         </div>
 
@@ -283,7 +283,7 @@ export default function PayFlow({
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
             </svg>
-            <span>Enviando comprovante e confirmando...</span>
+            <span>Enviando comprovante...</span>
           </>
         ) : (
           <>

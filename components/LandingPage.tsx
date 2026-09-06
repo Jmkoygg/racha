@@ -15,7 +15,7 @@ export default function LandingPage() {
             <span>🇧🇷</span>
             <span>Feito para universitários</span>
           </span>
-          <ChainBadge label="Auditado na Solana" />
+          <ChainBadge label="Registrado na Solana" />
         </div>
 
         <h1 className="text-3xl sm:text-4xl font-black tracking-tight leading-[1.15] text-ink">
@@ -93,9 +93,9 @@ export default function LandingPage() {
               3
             </span>
             <div>
-              <h3 className="text-sm font-bold text-ink">Painel em tempo real + OCR</h3>
+              <h3 className="text-sm font-bold text-ink">Painel em tempo real</h3>
               <p className="text-xs text-ink-soft mt-0.5 leading-relaxed">
-                Quem pagou envia o print ou você confirma em 1 clique. O comprovante vira um recibo público e permanente na blockchain Solana.
+                Quem pagou anexa o comprovante e o pagamento entra no seu painel na hora. Cada comprovante fica guardado como um recibo público e permanente na blockchain Solana.
               </p>
             </div>
           </div>
@@ -229,7 +229,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="pt-4 border-t border-line text-center text-xs text-ink-faint flex flex-col items-center gap-1">
         <p>Desenvolvido para a <strong>Hackathon Universitária Superteam Brasil</strong>.</p>
-        <p className="text-[11px] opacity-80">Solana Devnet • Registros via SPL Memo &amp; Squads Protocol</p>
+        <p className="text-[11px] opacity-80">Solana Devnet • Registros via SPL Memo • Squads Protocol no Modo Grupo (em breve)</p>
       </footer>
     </div>
   );
